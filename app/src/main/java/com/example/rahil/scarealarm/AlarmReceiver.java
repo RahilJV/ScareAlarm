@@ -1,46 +1,43 @@
 package com.example.rahil.scarealarm;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.Toast;
+import android.support.v4.app.NotificationCompat;
 
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.support.v4.content.WakefulBroadcastReceiver;
+public class AlarmReceiver extends BroadcastReceiver {
 
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+    public static final String NOTIFICATION_CHANNEL_ID = "Alarm";
 
     @Override
-    public void onReceive(final Context context, Intent intent) {
-        //this will update the UI with message
-        MainActivity inst = MainActivity.instance();
-        inst.setAlarmText("Alarm! Wake up! Wake up!");
+    public void onReceive(Context context, Intent intent) {
+        //Intent to invoke app when click on notification.
+        //In this sample, we want to start/launch this sample app when user clicks on notification
+        Intent intentToRepeat = new Intent(context, MainActivity.class);
+        //set flag to restart/relaunch the app
+        intentToRepeat.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        //this will sound the alarm tone
-        //this will sound the alarm once, if you wish to
-        //raise alarm in loop continuously then use MediaPlayer and setLooping(true)
-        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if (alarmUri == null) {
-            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        }
-        Ringtone ringtone = RingtoneManager.getRingtone(context, alarmUri);
-        ringtone.play();
+        //Pending intent to handle launch of Activity in intent above
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(context, NotificationHelper.ALARM_TYPE_RTC, intentToRepeat, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        //this will send a notification message
-        ComponentName comp = new ComponentName(context.getPackageName(),
-                AlarmService.class.getName());
-        startWakefulService(context, (intent.setComponent(comp)));
-        setResultCode(Activity.RESULT_OK);
+        //Build notification
+        Notification repeatedNotification = buildLocalNotification(context, pendingIntent).build();
+
+        //Send local notification
+        NotificationHelper.getNotificationManager(context).notify(NotificationHelper.ALARM_TYPE_RTC, repeatedNotification);
     }
+
+    public NotificationCompat.Builder buildLocalNotification(Context context, PendingIntent pendingIntent) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                        .setContentIntent(pendingIntent)
+                        .setSmallIcon(android.R.drawable.arrow_up_float)
+                        .setContentTitle("Alarm Notification")
+                        .setAutoCancel(true);
+
+        return builder;
+    }
+
 }

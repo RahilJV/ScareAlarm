@@ -1,64 +1,67 @@
 package com.example.rahil.scarealarm;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+import android.widget.CompoundButton;
 import android.widget.TimePicker;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import java.util.Calendar;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    AlarmManager alarmManager;
-    private PendingIntent pendingIntent;
-    private TimePicker alarmTimePicker;
-    private static MainActivity inst;
-    private TextView alarmTextView;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static MainActivity instance() {
-        return inst;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        inst = this;
-    }
+    @BindView (R.id.alarmTimePicker) private TimePicker alarmTimePicker;
+    @BindView (R.id.alarmToggle) private ToggleButton alarmToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        alarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
-        alarmTextView = (TextView) findViewById(R.id.alarmText);
-        ToggleButton alarmToggle = (ToggleButton) findViewById(R.id.alarmToggle);
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        ButterKnife.bind(this);
+
+        alarmToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+
+                if (isChecked)
+                {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        NotificationHelper.scheduleRepeatingRTCNotification(getApplicationContext(),
+                                Integer.toString(alarmTimePicker.getHour()), Integer.toString(alarmTimePicker.getMinute()));
+                    }
+                    else
+                    {
+                        NotificationHelper.scheduleRepeatingRTCNotification(getApplicationContext(),
+                                Integer.toString(alarmTimePicker.getCurrentHour()), Integer.toString(alarmTimePicker.getCurrentMinute()));
+                    }
+                }
+                else
+                {
+                    NotificationHelper.cancelAlarmRTC();
+                    Log.d(TAG, "Alarm Off");
+                }
+
+            }
+        });
     }
 
-    public void onToggleClicked(View view) {
-        if (((ToggleButton) view).isChecked()) {
-            Log.d("MyActivity", "Alarm On");
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY, alarmTimePicker.getCurrentHour());
-            calendar.set(Calendar.MINUTE, alarmTimePicker.getCurrentMinute());
-            Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
-            pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, 0);
-            alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
-        } else {
-            alarmManager.cancel(pendingIntent);
-            setAlarmText("");
-            Log.d("MyActivity", "Alarm Off");
-        }
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
-    public void setAlarmText(String alarmText) {
-        alarmTextView.setText(alarmText);
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }
