@@ -15,7 +15,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //Intent to invoke app when click on notification.
         //In this sample, we want to start/launch this sample app when user clicks on notification
-        Intent intentToRepeat = new Intent(context, MainActivity.class);
+        Intent intentToRepeat = new Intent(context, TestActivity.class);
         //set flag to restart/relaunch the app
         intentToRepeat.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 

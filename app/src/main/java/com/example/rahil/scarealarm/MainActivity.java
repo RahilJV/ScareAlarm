@@ -15,8 +15,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    @BindView (R.id.alarmTimePicker) private TimePicker alarmTimePicker;
-    @BindView (R.id.alarmToggle) private ToggleButton alarmToggle;
+    @BindView (R.id.alarmTimePicker)  TimePicker alarmTimePicker;
+    @BindView (R.id.alarmToggle) ToggleButton alarmToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +31,12 @@ public class MainActivity extends AppCompatActivity {
                 if (isChecked)
                 {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        NotificationHelper.scheduleRepeatingRTCNotification(getApplicationContext(),
+                        NotificationHelper.scheduleRepeatingRTCNotification(MainActivity.this,
                                 Integer.toString(alarmTimePicker.getHour()), Integer.toString(alarmTimePicker.getMinute()));
                     }
                     else
                     {
-                        NotificationHelper.scheduleRepeatingRTCNotification(getApplicationContext(),
+                        NotificationHelper.scheduleRepeatingRTCNotification(MainActivity.this,
                                 Integer.toString(alarmTimePicker.getCurrentHour()), Integer.toString(alarmTimePicker.getCurrentMinute()));
                     }
                 }

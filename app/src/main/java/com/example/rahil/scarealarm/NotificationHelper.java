@@ -8,11 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.util.Calendar;
 
 public class NotificationHelper {
 
+    private static final String TAG = NotificationHelper.class.getSimpleName();
     public static int ALARM_TYPE_RTC = 100;
     private static AlarmManager alarmManagerRTC;
     private static PendingIntent alarmIntentRTC;
@@ -22,6 +24,10 @@ public class NotificationHelper {
     private static PendingIntent alarmIntentElapsed;
 
     public static void scheduleRepeatingRTCNotification(Context context, String hour, String min) {
+
+        Log.d(TAG, "Hour: " + hour);
+        Log.d(TAG, "Minute: " + min);
+
         //get calendar instance to be able to select what time notification should be scheduled
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
